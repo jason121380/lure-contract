@@ -8,7 +8,6 @@ export interface OrderData {
   contactName: string;
   contactEmail: string;
   contactPhone: string;
-  contactAddress: string;
   monthlyFee: number;
   paymentType: PaymentType;
   contactWindow: string;
@@ -38,7 +37,6 @@ export const defaultOrder: OrderData = {
   contactName: '',
   contactEmail: '',
   contactPhone: '',
-  contactAddress: '',
   monthlyFee: 3600,
   paymentType: 'personal',
   contactWindow: '',

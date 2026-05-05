@@ -143,15 +143,6 @@ export default function AdminForm() {
           />
         </label>
 
-        <label className="span-3">
-          <span>聯繫地址</span>
-          <input
-            type="text"
-            value={order.contactAddress}
-            onChange={(e) => update('contactAddress', e.target.value)}
-          />
-        </label>
-
         <label>
           <span>聯繫窗口</span>
           <input

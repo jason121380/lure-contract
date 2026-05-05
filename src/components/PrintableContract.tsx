@@ -61,10 +61,6 @@ export default function PrintableContract({
             <td colSpan={2}>{order.contactPhone || ' '}</td>
           </tr>
           <tr>
-            <td className="label">聯繫地址</td>
-            <td colSpan={2}>{order.contactAddress || ' '}</td>
-          </tr>
-          <tr>
             <td className="label">委刊內容</td>
             <td colSpan={2}></td>
           </tr>
