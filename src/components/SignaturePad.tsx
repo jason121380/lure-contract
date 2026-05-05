@@ -1,7 +1,7 @@
 import {
   forwardRef,
-  useEffect,
   useImperativeHandle,
+  useLayoutEffect,
   useRef,
   useState
 } from 'react';
@@ -13,23 +13,25 @@ export interface SignaturePadHandle {
 }
 
 interface Props {
-  width?: number;
   height?: number;
 }
 
 const SignaturePad = forwardRef<SignaturePadHandle, Props>(function SignaturePad(
-  { width = 600, height = 220 },
+  { height = 200 },
   ref
 ) {
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const drawingRef = useRef(false);
   const lastRef = useRef<{ x: number; y: number } | null>(null);
   const emptyRef = useRef(true);
   const [, setTick] = useState(0);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const wrapper = wrapperRef.current;
+    if (!canvas || !wrapper) return;
+    const width = wrapper.clientWidth || 600;
     const ratio = window.devicePixelRatio || 1;
     canvas.width = width * ratio;
     canvas.height = height * ratio;
@@ -37,11 +39,11 @@ const SignaturePad = forwardRef<SignaturePadHandle, Props>(function SignaturePad
     canvas.style.height = `${height}px`;
     const ctx = canvas.getContext('2d')!;
     ctx.scale(ratio, ratio);
-    ctx.lineWidth = 2.2;
+    ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
     ctx.strokeStyle = '#111';
-  }, [width, height]);
+  }, [height]);
 
   const pos = (e: PointerEvent | React.PointerEvent) => {
     const canvas = canvasRef.current!;
@@ -93,7 +95,7 @@ const SignaturePad = forwardRef<SignaturePadHandle, Props>(function SignaturePad
   }));
 
   return (
-    <div className="signature-pad">
+    <div ref={wrapperRef} className="signature-pad">
       <canvas
         ref={canvasRef}
         onPointerDown={onPointerDown}
