@@ -42,6 +42,7 @@ export default function AdminForm() {
   const [password, setPassword] = useState('');
   const [link, setLink] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [copied, setCopied] = useState(false);
   const [linkError, setLinkError] = useState('');
 
@@ -59,6 +60,10 @@ export default function AdminForm() {
     if (!password || generating) return;
     setGenerating(true);
     setLinkError('');
+    setCountdown(6);
+    const tick = setInterval(() => {
+      setCountdown((c) => (c > 1 ? c - 1 : 1));
+    }, 1000);
     try {
       const encoded = await encryptOrder(order, password);
       const id = randomShortId(8);
@@ -68,6 +73,8 @@ export default function AdminForm() {
     } catch (err) {
       setLinkError(err instanceof Error ? err.message : '產生失敗');
     } finally {
+      clearInterval(tick);
+      setCountdown(0);
       setGenerating(false);
     }
   };
@@ -271,7 +278,11 @@ export default function AdminForm() {
             onClick={generateLink}
             disabled={!password || generating}
           >
-            {generating ? '產生中…' : link ? '重新產生連結' : '產生連結'}
+            {generating
+              ? `產生中… ${countdown}`
+              : link
+              ? '重新產生連結'
+              : '產生連結'}
           </button>
         </div>
 
