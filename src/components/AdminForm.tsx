@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 import type { OrderData, PaymentType } from '../types';
 import { defaultOrder } from '../types';
 import { buildSigningUrl, encryptOrder } from '../lib/crypto';
+import {
+  buildShortSigningUrl,
+  fetchShortLink,
+  randomShortId,
+  storeShortLink
+} from '../lib/shortener';
 
 function todayIso(): string {
   const d = new Date();
@@ -75,13 +81,18 @@ export default function AdminForm() {
     setShortening(true);
     setShortError('');
     try {
-      const res = await fetch(
-        `https://is.gd/create.php?format=simple&url=${encodeURIComponent(link)}`
-      );
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = (await res.text()).trim();
-      if (!text.startsWith('http')) throw new Error(text || '回傳格式異常');
-      setLink(text);
+      const url = new URL(link);
+      const blob = url.searchParams.get('e');
+      if (!blob) throw new Error('原始連結缺少加密內容');
+
+      const id = randomShortId(8);
+      await storeShortLink(id, blob);
+
+      // Verify storage round-trips before swapping the link.
+      const got = await fetchShortLink(id);
+      if (got !== blob) throw new Error('儲存後讀回不一致');
+
+      setLink(buildShortSigningUrl(id));
       setCopied(false);
     } catch (err) {
       setShortError(err instanceof Error ? err.message : '縮短失敗');
@@ -297,11 +308,11 @@ export default function AdminForm() {
               <button
                 type="button"
                 onClick={shortenLink}
-                disabled={shortening || link.startsWith('https://is.gd/')}
+                disabled={shortening || link.includes('?k=')}
               >
                 {shortening
                   ? '縮短中…'
-                  : link.startsWith('https://is.gd/')
+                  : link.includes('?k=')
                   ? '已縮短 ✓'
                   : '縮短連結'}
               </button>

@@ -433,6 +433,31 @@ input, select, textarea, button { font-family: inherit; }
 .sign-actions button:disabled { opacity: 0.6; cursor: progress; }
 .error { color: #b91c1c; margin-top: 10px; }
 
+/* ---------- Short-link loading / error ---------- */
+.link-loading-wrap {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.link-loading-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.link-loading-card h2 { margin: 0; font-size: 18px; color: #b91c1c; }
+.link-loading-card p { margin: 0; color: #475569; font-size: 14px; line-height: 1.6; }
+
 /* ---------- Success page (post-submit) ---------- */
 .success-wrap {
   min-height: 100vh;
