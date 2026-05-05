@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { OrderData, PaymentType } from '../types';
 import { defaultOrder } from '../types';
-import { buildSigningUrl, encodeOrder } from '../lib/encoding';
+import { buildSigningUrl, encryptOrder } from '../lib/crypto';
 
 function todayIso(): string {
   const d = new Date();
@@ -26,15 +26,34 @@ export default function AdminForm() {
     const t = todayIso();
     return { ...defaultOrder, fillDate: t, periodStart: t, periodEnd: addMonths(t, 3) };
   });
+  const [password, setPassword] = useState('');
+  const [link, setLink] = useState('');
+  const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const update = <K extends keyof OrderData>(key: K, value: OrderData[K]) => {
     setOrder((prev) => ({ ...prev, [key]: value }));
   };
 
-  const link = useMemo(() => buildSigningUrl(encodeOrder(order)), [order]);
+  // Any change to the form data or password invalidates the previously generated link.
+  useEffect(() => {
+    setLink('');
+    setCopied(false);
+  }, [order, password]);
+
+  const generateLink = async () => {
+    if (!password || generating) return;
+    setGenerating(true);
+    try {
+      const encoded = await encryptOrder(order, password);
+      setLink(buildSigningUrl(encoded));
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const copyLink = async () => {
+    if (!link) return;
     await navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
@@ -145,16 +164,43 @@ export default function AdminForm() {
       </div>
 
       <div className="link-box">
-        <label>客戶簽署連結</label>
-        <textarea readOnly value={link} rows={3} />
+        <label>連結密碼</label>
+        <input
+          type="text"
+          className="password-input"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="自訂一組密碼，請另外用電話/訊息告知客戶"
+        />
+        <p className="password-hint">
+          客戶開啟連結時必須輸入這組密碼才能看到委刊單內容。即使連結外流，沒有密碼也無法解開。
+        </p>
+
         <div className="link-actions">
-          <button type="button" onClick={copyLink}>
-            {copied ? '已複製 ✓' : '複製連結'}
+          <button
+            type="button"
+            className="primary"
+            onClick={generateLink}
+            disabled={!password || generating}
+          >
+            {generating ? '加密中…' : link ? '重新產生連結' : '產生加密連結'}
           </button>
-          <a href={link} target="_blank" rel="noreferrer" className="preview-link">
-            預覽客戶看到的畫面
-          </a>
         </div>
+
+        {link && (
+          <>
+            <label className="link-label">客戶簽署連結</label>
+            <textarea readOnly value={link} rows={3} />
+            <div className="link-actions">
+              <button type="button" onClick={copyLink}>
+                {copied ? '已複製 ✓' : '複製連結'}
+              </button>
+              <a href={link} target="_blank" rel="noreferrer" className="preview-link">
+                預覽客戶看到的畫面
+              </a>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

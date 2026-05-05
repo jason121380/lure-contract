@@ -1,30 +1,37 @@
 import { useEffect, useState } from 'react';
 import AdminForm from './components/AdminForm';
 import CustomerView from './components/CustomerView';
-import { decodeOrder } from './lib/encoding';
+import PasswordPrompt from './components/PasswordPrompt';
+import { decryptOrder } from './lib/crypto';
 import type { OrderData } from './types';
 
 export default function App() {
   const [order, setOrder] = useState<OrderData | null>(null);
-  const [mode, setMode] = useState<'admin' | 'customer'>('admin');
+  const [encrypted, setEncrypted] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const d = params.get('d');
-    if (d) {
-      const parsed = decodeOrder(d);
-      if (parsed) {
-        setOrder(parsed);
-        setMode('customer');
-        return;
-      }
-    }
-    setMode('admin');
+    const e = params.get('e');
+    if (e) setEncrypted(e);
   }, []);
+
+  const handleUnlock = async (password: string): Promise<boolean> => {
+    if (!encrypted) return false;
+    const decrypted = await decryptOrder(encrypted, password);
+    if (!decrypted) return false;
+    setOrder(decrypted);
+    return true;
+  };
 
   return (
     <div className="app">
-      {mode === 'customer' && order ? <CustomerView order={order} /> : <AdminForm />}
+      {encrypted && !order ? (
+        <PasswordPrompt onUnlock={handleUnlock} />
+      ) : order ? (
+        <CustomerView order={order} />
+      ) : (
+        <AdminForm />
+      )}
     </div>
   );
 }
