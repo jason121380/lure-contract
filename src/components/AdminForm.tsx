@@ -68,7 +68,7 @@ export default function AdminForm() {
 
   return (
     <div className="admin-wrap">
-      <h1>後台 — 產生委刊單簽署連結</h1>
+      <h1>吸引力外案委刊單 後台</h1>
       <p className="hint">填寫下方資料，完成後複製連結傳給客戶，他開啟後簽名即可送出。</p>
 
       <h2 className="section-title">客戶資料</h2>
