@@ -228,11 +228,19 @@ export default function AdminForm() {
         </label>
 
         <label className="span-3">
-          <span>收款資訊（顯示於付款方式欄位）</span>
+          <span>個人委託收款資訊（付款類型選「個人委託」時顯示）</span>
           <textarea
             rows={3}
-            value={order.payeeInfo}
-            onChange={(e) => update('payeeInfo', e.target.value)}
+            value={order.payeeInfoPersonal}
+            onChange={(e) => update('payeeInfoPersonal', e.target.value)}
+          />
+        </label>
+        <label className="span-3">
+          <span>公司委託收款資訊（付款類型選「公司委託」時顯示）</span>
+          <textarea
+            rows={3}
+            value={order.payeeInfoCompany}
+            onChange={(e) => update('payeeInfoCompany', e.target.value)}
           />
         </label>
       </div>

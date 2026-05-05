@@ -23,7 +23,9 @@ export default function PrintableContract({
 }: Props) {
   const monthlyFee = order.monthlyFee || 0;
   const originalFee = order.originalFee || 0;
-  const paymentLabel = order.paymentType === 'company' ? '公司委託' : '個人委託';
+  const isCompany = order.paymentType === 'company';
+  const paymentLabel = isCompany ? '公司委託' : '個人委託';
+  const payeeInfo = isCompany ? order.payeeInfoCompany : order.payeeInfoPersonal;
 
   return (
     <div id="printable-contract" className="printable-contract">
@@ -99,8 +101,8 @@ export default function PrintableContract({
             </td>
             <td className="payment-cell">
               <p>☑ {paymentLabel}</p>
-              {order.payeeInfo && (
-                <p style={{ whiteSpace: 'pre-line' }}>{order.payeeInfo}</p>
+              {payeeInfo && (
+                <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
               )}
               <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
             </td>

@@ -19,7 +19,8 @@ export interface OrderData {
   planDuration: string;
   planBullets: string[];
   terms: string[];
-  payeeInfo: string;
+  payeeInfoPersonal: string;
+  payeeInfoCompany: string;
 }
 
 export interface SubmittedPayload extends OrderData {
@@ -62,5 +63,6 @@ export const defaultOrder: OrderData = {
     '委刊者負責所提供的網站連線正常、無損害他人電腦之程式等，本公司僅負依您所指定網址連結設定正確不負其他之責。',
     '本專案委刊單即視為合約，一經委刊者於客戶簽章欄簽名或支付本專案款項費用後本合約立即生效。'
   ],
-  payeeInfo: '兆豐銀行 017\n南京東路分行\n07010000354 鄭仲傑'
+  payeeInfoPersonal: '兆豐銀行 017\n南京東路分行\n07010000354 鄭仲傑',
+  payeeInfoCompany: ''
 };
