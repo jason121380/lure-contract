@@ -90,6 +90,19 @@ export default function CustomerView({ order }: Props) {
 
   const busy = status === 'rendering' || status === 'submitting';
 
+  if (status === 'done') {
+    return (
+      <div className="success-wrap">
+        <div className="success-card">
+          <div className="success-icon" aria-hidden="true">✓</div>
+          <h2>已送出，感謝您！</h2>
+          <p>我們已收到您的簽署委刊單，承辦人會儘快與您聯繫。</p>
+          <p className="success-close-hint">您可以直接關閉此視窗。</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="customer-wrap">
       <p className="contract-hint">以下為您的委刊單，可雙指縮放查看細節</p>
@@ -102,33 +115,24 @@ export default function CustomerView({ order }: Props) {
         />
       </div>
 
-      {status !== 'done' && (
-        <div className="sign-area">
-          <h3>請於下方簽名後送出</h3>
-          <SignaturePad ref={padRef} />
-          <div className="sign-actions">
-            <button type="button" onClick={handleClear} disabled={busy}>
-              清除
-            </button>
-            <button
-              type="button"
-              className="primary"
-              onClick={handleSubmit}
-              disabled={busy}
-            >
-              {busy ? '送出中…' : '確認簽名並送出'}
-            </button>
-          </div>
-          {status === 'error' && <p className="error">送出失敗：{errorMsg}</p>}
+      <div className="sign-area">
+        <h3>請於下方簽名後送出</h3>
+        <SignaturePad ref={padRef} />
+        <div className="sign-actions">
+          <button type="button" onClick={handleClear} disabled={busy}>
+            清除
+          </button>
+          <button
+            type="button"
+            className="primary"
+            onClick={handleSubmit}
+            disabled={busy}
+          >
+            {busy ? '送出中…' : '確認簽名並送出'}
+          </button>
         </div>
-      )}
-
-      {status === 'done' && (
-        <div className="done-area">
-          <h2>已送出，感謝您！</h2>
-          <p>我們已收到您的簽署委刊單，承辦人會儘快與您聯繫。</p>
-        </div>
-      )}
+        {status === 'error' && <p className="error">送出失敗：{errorMsg}</p>}
+      </div>
 
       {busy && (
         <div className="progress-overlay" role="status" aria-live="polite">
