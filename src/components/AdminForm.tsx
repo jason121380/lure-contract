@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { OrderData, PaymentType } from '../types';
 import { defaultOrder } from '../types';
-import { buildSigningUrl, encryptOrder } from '../lib/crypto';
+import { encryptOrder } from '../lib/crypto';
 import {
   buildShortSigningUrl,
   randomShortId,
@@ -43,8 +43,7 @@ export default function AdminForm() {
   const [link, setLink] = useState('');
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [shortening, setShortening] = useState(false);
-  const [shortError, setShortError] = useState('');
+  const [linkError, setLinkError] = useState('');
 
   const update = <K extends keyof OrderData>(key: K, value: OrderData[K]) => {
     setOrder((prev) => ({ ...prev, [key]: value }));
@@ -53,16 +52,21 @@ export default function AdminForm() {
   useEffect(() => {
     setLink('');
     setCopied(false);
-    setShortError('');
+    setLinkError('');
   }, [order, password]);
 
   const generateLink = async () => {
     if (!password || generating) return;
     setGenerating(true);
-    setShortError('');
+    setLinkError('');
     try {
       const encoded = await encryptOrder(order, password);
-      setLink(buildSigningUrl(encoded));
+      const id = randomShortId(8);
+      await storeShortLink(id, encoded);
+      setLink(buildShortSigningUrl(id));
+      setCopied(false);
+    } catch (err) {
+      setLinkError(err instanceof Error ? err.message : '產生失敗');
     } finally {
       setGenerating(false);
     }
@@ -73,27 +77,6 @@ export default function AdminForm() {
     await navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
-  };
-
-  const shortenLink = async () => {
-    if (!link || shortening) return;
-    setShortening(true);
-    setShortError('');
-    try {
-      const url = new URL(link);
-      const blob = url.searchParams.get('e');
-      if (!blob) throw new Error('原始連結缺少加密內容');
-
-      const id = randomShortId(8);
-      await storeShortLink(id, blob);
-
-      setLink(buildShortSigningUrl(id));
-      setCopied(false);
-    } catch (err) {
-      setShortError(err instanceof Error ? err.message : '縮短失敗');
-    } finally {
-      setShortening(false);
-    }
   };
 
   return (
@@ -288,34 +271,24 @@ export default function AdminForm() {
             onClick={generateLink}
             disabled={!password || generating}
           >
-            {generating ? '加密中…' : link ? '重新產生連結' : '產生加密連結'}
+            {generating ? '產生中…' : link ? '重新產生連結' : '產生連結'}
           </button>
         </div>
+
+        {linkError && <p className="error">產生失敗：{linkError}</p>}
 
         {link && (
           <>
             <label className="link-label">客戶簽署連結</label>
-            <textarea readOnly value={link} rows={3} />
+            <textarea readOnly value={link} rows={2} />
             <div className="link-actions">
               <button type="button" onClick={copyLink}>
                 {copied ? '已複製 ✓' : '複製連結'}
-              </button>
-              <button
-                type="button"
-                onClick={shortenLink}
-                disabled={shortening || link.includes('?k=')}
-              >
-                {shortening
-                  ? '縮短中…'
-                  : link.includes('?k=')
-                  ? '已縮短 ✓'
-                  : '縮短連結'}
               </button>
               <a href={link} target="_blank" rel="noreferrer" className="preview-link">
                 預覽客戶看到的畫面
               </a>
             </div>
-            {shortError && <p className="error">縮短失敗：{shortError}</p>}
           </>
         )}
       </div>

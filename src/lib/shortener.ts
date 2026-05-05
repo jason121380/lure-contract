@@ -22,12 +22,24 @@ export async function storeShortLink(id: string, blob: string): Promise<void> {
   if (!SUBMISSION_ENDPOINT_URL) {
     throw new Error('尚未設定 SUBMISSION_ENDPOINT_URL');
   }
-  await fetch(SUBMISSION_ENDPOINT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'shorten', id, blob })
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10000);
+  try {
+    await fetch(SUBMISSION_ENDPOINT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'shorten', id, blob }),
+      signal: controller.signal
+    });
+  } catch (err) {
+    if (err instanceof DOMException && err.name === 'AbortError') {
+      throw new Error('短連結伺服器逾時');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export function fetchShortLink(id: string): Promise<string> {
