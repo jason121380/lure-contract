@@ -66,11 +66,30 @@ export default function PrintableContract({
               <p className="plan-title-line">☑ {order.planTitle}</p>
             </td>
             <td className="payment-cell" rowSpan={2}>
-              <p>☑ {paymentLabel}</p>
-              {payeeInfo && (
-                <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
-              )}
-              <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
+              <div className="payment-section">
+                <p className="payment-section-label">聯繫窗口</p>
+                <p>{order.contactWindow || ' '}</p>
+              </div>
+              <div className="payment-section">
+                <p>☑ {paymentLabel}</p>
+                {payeeInfo && (
+                  <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
+                )}
+                <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
+              </div>
+              <div className="payment-section signature-section">
+                <p className="signature-cell-label">客戶簽章</p>
+                {signatureDataUrl ? (
+                  <img
+                    src={signatureDataUrl}
+                    alt="客戶簽章"
+                    className="signature-img"
+                  />
+                ) : (
+                  <div className="signature-placeholder" />
+                )}
+                {signedAt && <div className="signed-at">簽署時間：{signedAt}</div>}
+              </div>
             </td>
           </tr>
           <tr>
@@ -103,23 +122,6 @@ export default function PrintableContract({
                   </ol>
                 </>
               )}
-            </td>
-          </tr>
-          <tr>
-            <td className="label">聯繫窗口</td>
-            <td>{order.contactWindow}</td>
-            <td className="signature-cell">
-              <div className="signature-cell-label">客戶簽章</div>
-              {signatureDataUrl ? (
-                <img
-                  src={signatureDataUrl}
-                  alt="客戶簽章"
-                  className="signature-img"
-                />
-              ) : (
-                <div className="signature-placeholder" />
-              )}
-              {signedAt && <div className="signed-at">簽署時間：{signedAt}</div>}
             </td>
           </tr>
         </tbody>

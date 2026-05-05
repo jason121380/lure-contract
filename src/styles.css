@@ -334,11 +334,37 @@ input, select, textarea, button { font-family: inherit; }
 .contract-table .payment-cell {
   width: 28%;
   font-size: 12px;
+  vertical-align: top;
 }
 .contract-table .payment-cell .amount {
   font-weight: 700;
   font-size: 14px;
   margin-top: 8px;
+}
+.payment-section {
+  padding: 10px 0;
+  border-bottom: 1px dashed #cbd5e1;
+}
+.payment-section:first-child { padding-top: 0; }
+.payment-section:last-child { border-bottom: 0; padding-bottom: 0; }
+.payment-section p { margin: 4px 0; }
+.payment-section-label {
+  font-weight: 700;
+  margin: 0 0 4px !important;
+}
+.signature-section {
+  text-align: center;
+}
+.signature-section .signature-cell-label {
+  text-align: left;
+  margin: 0 0 6px;
+}
+.signature-section .signature-img {
+  margin: 0 auto;
+}
+.signature-section .signature-placeholder {
+  border-bottom: 1px dashed #aaa;
+  height: 60px;
 }
 .plan-title-line {
   margin: 0;
