@@ -31,7 +31,7 @@ function ensureHeaderRow_(ss) {
   if (sheet.getLastRow() === 0) {
     sheet.appendRow([
       '簽署時間',
-      '委託主',
+      '委託單位',
       '聯繫人',
       'E-mail',
       '聯繫電話',

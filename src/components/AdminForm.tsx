@@ -21,6 +21,14 @@ function addMonths(iso: string, months: number): string {
   return `${y}-${m}-${day}`;
 }
 
+function listToText(arr: string[]): string {
+  return arr.join('\n');
+}
+
+function textToList(text: string): string[] {
+  return text.split('\n').map((s) => s.trim()).filter(Boolean);
+}
+
 export default function AdminForm() {
   const [order, setOrder] = useState<OrderData>(() => {
     const t = todayIso();
@@ -35,7 +43,6 @@ export default function AdminForm() {
     setOrder((prev) => ({ ...prev, [key]: value }));
   };
 
-  // Any change to the form data or password invalidates the previously generated link.
   useEffect(() => {
     setLink('');
     setCopied(false);
@@ -64,6 +71,7 @@ export default function AdminForm() {
       <h1>後台 — 產生委刊單簽署連結</h1>
       <p className="hint">填寫下方資料，完成後複製連結傳給客戶，他開啟後簽名即可送出。</p>
 
+      <h2 className="section-title">客戶資料</h2>
       <div className="grid">
         <label>
           <span>填表日期</span>
@@ -91,7 +99,7 @@ export default function AdminForm() {
         </label>
 
         <label className="span-2">
-          <span>委託主</span>
+          <span>委託單位</span>
           <input
             type="text"
             placeholder="例：one corner botan"
@@ -145,6 +153,35 @@ export default function AdminForm() {
         </label>
 
         <label>
+          <span>聯繫窗口</span>
+          <input
+            type="text"
+            value={order.contactWindow}
+            onChange={(e) => update('contactWindow', e.target.value)}
+          />
+        </label>
+      </div>
+
+      <h2 className="section-title">方案內容（已預填，可調整）</h2>
+      <div className="grid">
+        <label className="span-3">
+          <span>服務名稱</span>
+          <input
+            type="text"
+            value={order.planTitle}
+            onChange={(e) => update('planTitle', e.target.value)}
+          />
+        </label>
+        <label>
+          <span>每月原價（元）</span>
+          <input
+            type="number"
+            min={0}
+            value={order.originalFee}
+            onChange={(e) => update('originalFee', Number(e.target.value) || 0)}
+          />
+        </label>
+        <label>
           <span>每月特惠價（元）</span>
           <input
             type="number"
@@ -154,11 +191,48 @@ export default function AdminForm() {
           />
         </label>
         <label>
-          <span>聯繫窗口</span>
+          <span>方案期間描述</span>
           <input
             type="text"
-            value={order.contactWindow}
-            onChange={(e) => update('contactWindow', e.target.value)}
+            value={order.planDuration}
+            onChange={(e) => update('planDuration', e.target.value)}
+            placeholder="例：3 個月"
+          />
+        </label>
+
+        <label className="span-3">
+          <span>計費補充說明</span>
+          <input
+            type="text"
+            value={order.billingNote}
+            onChange={(e) => update('billingNote', e.target.value)}
+          />
+        </label>
+
+        <label className="span-3">
+          <span>服務項目（每行一條）</span>
+          <textarea
+            rows={7}
+            value={listToText(order.planBullets)}
+            onChange={(e) => update('planBullets', textToList(e.target.value))}
+          />
+        </label>
+
+        <label className="span-3">
+          <span>其他約定條款（每行一條）</span>
+          <textarea
+            rows={8}
+            value={listToText(order.terms)}
+            onChange={(e) => update('terms', textToList(e.target.value))}
+          />
+        </label>
+
+        <label className="span-3">
+          <span>收款資訊（顯示於付款方式欄位）</span>
+          <textarea
+            rows={3}
+            value={order.payeeInfo}
+            onChange={(e) => update('payeeInfo', e.target.value)}
           />
         </label>
       </div>

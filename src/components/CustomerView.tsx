@@ -2,14 +2,19 @@ import { useRef, useState } from 'react';
 import type { OrderData, SubmittedPayload } from '../types';
 import PrintableContract from './PrintableContract';
 import SignaturePad, { type SignaturePadHandle } from './SignaturePad';
-import { downloadBlob, generateContractPdf } from '../lib/pdf';
+import { generateContractPdf } from '../lib/pdf';
 import { submitSignedContract } from '../lib/submission';
 
 interface Props {
   order: OrderData;
 }
 
-type Status = 'idle' | 'submitting' | 'done' | 'error';
+type Status = 'idle' | 'rendering' | 'submitting' | 'done' | 'error';
+
+const STATUS_TEXT: Record<Exclude<Status, 'idle' | 'done' | 'error'>, string> = {
+  rendering: '正在產生 PDF…',
+  submitting: '正在傳送至雲端…'
+};
 
 export default function CustomerView({ order }: Props) {
   const padRef = useRef<SignaturePadHandle>(null);
@@ -25,22 +30,22 @@ export default function CustomerView({ order }: Props) {
       alert('請先簽名');
       return;
     }
-    setStatus('submitting');
     setErrorMsg('');
+    setStatus('rendering');
     try {
       const dataUrl = padRef.current.toDataURL();
       const nowIso = new Date().toISOString();
       const niceTime = new Date(nowIso).toLocaleString('zh-TW', { hour12: false });
 
-      // Render signature into the printable contract before rasterizing.
       setSignatureDataUrl(dataUrl);
       setSignedAt(niceTime);
 
-      // Wait one frame so React commits the signature image into the DOM.
       await new Promise((r) => requestAnimationFrame(() => r(null)));
       await new Promise((r) => requestAnimationFrame(() => r(null)));
 
       const pdf = await generateContractPdf(order.clientName, nowIso);
+
+      setStatus('submitting');
 
       const payload: SubmittedPayload = {
         ...order,
@@ -51,7 +56,6 @@ export default function CustomerView({ order }: Props) {
       };
 
       await submitSignedContract(payload);
-      downloadBlob(pdf.blob, pdf.filename);
       setStatus('done');
     } catch (err) {
       console.error(err);
@@ -59,6 +63,8 @@ export default function CustomerView({ order }: Props) {
       setStatus('error');
     }
   };
+
+  const busy = status === 'rendering' || status === 'submitting';
 
   return (
     <div className="customer-wrap">
@@ -73,16 +79,16 @@ export default function CustomerView({ order }: Props) {
           <h3>請於下方簽名後送出</h3>
           <SignaturePad ref={padRef} />
           <div className="sign-actions">
-            <button type="button" onClick={handleClear} disabled={status === 'submitting'}>
+            <button type="button" onClick={handleClear} disabled={busy}>
               清除
             </button>
             <button
               type="button"
               className="primary"
               onClick={handleSubmit}
-              disabled={status === 'submitting'}
+              disabled={busy}
             >
-              {status === 'submitting' ? '送出中…' : '確認簽名並送出'}
+              {busy ? '送出中…' : '確認簽名並送出'}
             </button>
           </div>
           {status === 'error' && <p className="error">送出失敗：{errorMsg}</p>}
@@ -92,7 +98,19 @@ export default function CustomerView({ order }: Props) {
       {status === 'done' && (
         <div className="done-area">
           <h2>已送出，感謝您！</h2>
-          <p>我們已收到您的簽署委刊單，副本 PDF 已下載至您的裝置。</p>
+          <p>我們已收到您的簽署委刊單，承辦人會儘快與您聯繫。</p>
+        </div>
+      )}
+
+      {busy && (
+        <div className="progress-overlay" role="status" aria-live="polite">
+          <div className="progress-card">
+            <div className="spinner" />
+            <p className="progress-text">
+              {STATUS_TEXT[status as 'rendering' | 'submitting']}
+            </p>
+            <p className="progress-hint">請勿關閉視窗，整個流程約需 10–30 秒…</p>
+          </div>
         </div>
       )}
     </div>
