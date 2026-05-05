@@ -14,12 +14,25 @@ export async function generateContractPdf(
   const node = document.getElementById('printable-contract') as HTMLElement | null;
   if (!node) throw new Error('printable-contract element not found');
 
-  const canvas = await html2canvas(node, {
-    scale: 2,
-    backgroundColor: '#ffffff',
-    useCORS: true,
-    windowWidth: node.scrollWidth
-  });
+  // Reset any visual scaling (used for mobile preview) so the PDF renders at
+  // the contract's natural width regardless of viewport.
+  const prevTransform = node.style.transform;
+  const prevOrigin = node.style.transformOrigin;
+  node.style.transform = '';
+  node.style.transformOrigin = '';
+
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(node, {
+      scale: 2,
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      windowWidth: node.scrollWidth
+    });
+  } finally {
+    node.style.transform = prevTransform;
+    node.style.transformOrigin = prevOrigin;
+  }
 
   const pdf = new jsPDF({ unit: 'pt', format: 'a4', compress: true });
   const pageWidth = pdf.internal.pageSize.getWidth();

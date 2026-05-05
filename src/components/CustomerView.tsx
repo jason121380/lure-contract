@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { OrderData, SubmittedPayload } from '../types';
 import PrintableContract from './PrintableContract';
 import SignaturePad, { type SignaturePadHandle } from './SignaturePad';
@@ -13,10 +13,39 @@ type Status = 'idle' | 'rendering' | 'submitting' | 'done' | 'error';
 
 export default function CustomerView({ order }: Props) {
   const padRef = useRef<SignaturePadHandle>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | undefined>();
   const [signedAt, setSignedAt] = useState<string | undefined>();
+
+  useLayoutEffect(() => {
+    const fit = () => {
+      const viewport = viewportRef.current;
+      if (!viewport) return;
+      const contract = viewport.querySelector('.printable-contract') as HTMLElement | null;
+      if (!contract) return;
+      contract.style.transform = '';
+      contract.style.transformOrigin = '';
+      const containerWidth = viewport.clientWidth;
+      const naturalWidth = contract.offsetWidth;
+      if (naturalWidth <= containerWidth + 1 || naturalWidth === 0) {
+        viewport.style.height = '';
+        return;
+      }
+      const scale = containerWidth / naturalWidth;
+      contract.style.transformOrigin = 'top left';
+      contract.style.transform = `scale(${scale})`;
+      viewport.style.height = `${contract.offsetHeight * scale}px`;
+    };
+    fit();
+    window.addEventListener('resize', fit);
+    window.addEventListener('orientationchange', fit);
+    return () => {
+      window.removeEventListener('resize', fit);
+      window.removeEventListener('orientationchange', fit);
+    };
+  }, [signatureDataUrl, signedAt, order]);
 
   const handleClear = () => padRef.current?.clear();
 
@@ -63,11 +92,15 @@ export default function CustomerView({ order }: Props) {
 
   return (
     <div className="customer-wrap">
-      <PrintableContract
-        order={order}
-        signatureDataUrl={signatureDataUrl}
-        signedAt={signedAt}
-      />
+      <p className="contract-hint">以下為您的委刊單，可雙指縮放查看細節</p>
+
+      <div ref={viewportRef} className="contract-viewport">
+        <PrintableContract
+          order={order}
+          signatureDataUrl={signatureDataUrl}
+          signedAt={signedAt}
+        />
+      </div>
 
       {status !== 'done' && (
         <div className="sign-area">
