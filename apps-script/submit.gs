@@ -50,7 +50,9 @@ function ensureHeaderRow_(ss) {
 
 function doPost(e) {
   try {
+    Logger.log('doPost start');
     const data = JSON.parse(e.postData.contents);
+    Logger.log('parsed data, clientName=%s filename=%s', data.clientName, data.filename);
 
     const folder = DriveApp.getFolderById(PDF_FOLDER_ID);
     const bytes = Utilities.base64Decode(data.pdfBase64);
@@ -58,9 +60,13 @@ function doPost(e) {
     const file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     const pdfUrl = file.getUrl();
+    Logger.log('drive saved, pdfUrl=%s', pdfUrl);
 
     const ss = SpreadsheetApp.openById(RESPONSE_SHEET_ID);
+    Logger.log('opened spreadsheet, name=%s', ss.getName());
     const sheet = ensureHeaderRow_(ss);
+    Logger.log('using sheet=%s, lastRow=%s', sheet.getName(), sheet.getLastRow());
+
     sheet.appendRow([
       new Date(data.signedAt || Date.now()),
       data.clientName || '',
@@ -76,11 +82,13 @@ function doPost(e) {
       pdfUrl,
       data.filename || ''
     ]);
+    Logger.log('appendRow done, newLastRow=%s', sheet.getLastRow());
 
     return ContentService.createTextOutput(
       JSON.stringify({ ok: true, pdfUrl: pdfUrl })
     ).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
+    Logger.log('doPost error: %s', err && err.stack ? err.stack : err);
     return ContentService.createTextOutput(
       JSON.stringify({ ok: false, error: String(err) })
     ).setMimeType(ContentService.MimeType.JSON);
