@@ -154,7 +154,7 @@ export default function AdminForm() {
       </div>
 
       <details className="plan-details">
-        <summary>方案內容（已預填，可調整）</summary>
+        <summary>方案內容</summary>
         <div className="grid">
           <label className="span-3">
             <span>服務名稱</span>
