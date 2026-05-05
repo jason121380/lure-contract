@@ -24,7 +24,6 @@ export default function PrintableContract({
   const monthlyFee = order.monthlyFee || 0;
   const originalFee = order.originalFee || 0;
   const isCompany = order.paymentType === 'company';
-  const paymentLabel = isCompany ? '公司委託' : '個人委託';
   const payeeInfo = isCompany ? order.payeeInfoCompany : order.payeeInfoPersonal;
   const period =
     order.periodStart || order.periodEnd
@@ -63,9 +62,7 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="label">聯繫人姓名</td>
-            <td colSpan={3}>
-              {order.contactName}　　E-mail：{order.contactEmail}
-            </td>
+            <td colSpan={3}>{order.contactName || ' '}</td>
           </tr>
           <tr>
             <td className="label">聯繫電話</td>
@@ -74,7 +71,7 @@ export default function PrintableContract({
           <tr>
             <td className="label">委託內容</td>
             <td colSpan={3}>
-              <span className="plan-title-line">☑ {order.planTitle}</span>
+              <span className="plan-title-line">{order.planTitle}</span>
             </td>
           </tr>
           <tr>
@@ -112,7 +109,6 @@ export default function PrintableContract({
               )}
             </td>
             <td className="payment-cell">
-              <p>☑ {paymentLabel}</p>
               {payeeInfo && (
                 <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
               )}
