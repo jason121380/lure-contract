@@ -38,6 +38,8 @@ export default function AdminForm() {
   const [link, setLink] = useState('');
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shortening, setShortening] = useState(false);
+  const [shortError, setShortError] = useState('');
 
   const update = <K extends keyof OrderData>(key: K, value: OrderData[K]) => {
     setOrder((prev) => ({ ...prev, [key]: value }));
@@ -46,11 +48,13 @@ export default function AdminForm() {
   useEffect(() => {
     setLink('');
     setCopied(false);
+    setShortError('');
   }, [order, password]);
 
   const generateLink = async () => {
     if (!password || generating) return;
     setGenerating(true);
+    setShortError('');
     try {
       const encoded = await encryptOrder(order, password);
       setLink(buildSigningUrl(encoded));
@@ -64,6 +68,26 @@ export default function AdminForm() {
     await navigator.clipboard.writeText(link);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
+  };
+
+  const shortenLink = async () => {
+    if (!link || shortening) return;
+    setShortening(true);
+    setShortError('');
+    try {
+      const res = await fetch(
+        `https://is.gd/create.php?format=simple&url=${encodeURIComponent(link)}`
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = (await res.text()).trim();
+      if (!text.startsWith('http')) throw new Error(text || '回傳格式異常');
+      setLink(text);
+      setCopied(false);
+    } catch (err) {
+      setShortError(err instanceof Error ? err.message : '縮短失敗');
+    } finally {
+      setShortening(false);
+    }
   };
 
   return (
@@ -270,10 +294,22 @@ export default function AdminForm() {
               <button type="button" onClick={copyLink}>
                 {copied ? '已複製 ✓' : '複製連結'}
               </button>
+              <button
+                type="button"
+                onClick={shortenLink}
+                disabled={shortening || link.startsWith('https://is.gd/')}
+              >
+                {shortening
+                  ? '縮短中…'
+                  : link.startsWith('https://is.gd/')
+                  ? '已縮短 ✓'
+                  : '縮短連結'}
+              </button>
               <a href={link} target="_blank" rel="noreferrer" className="preview-link">
                 預覽客戶看到的畫面
               </a>
             </div>
+            {shortError && <p className="error">縮短失敗：{shortError}</p>}
           </>
         )}
       </div>
