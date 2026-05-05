@@ -26,6 +26,10 @@ export default function PrintableContract({
   const isCompany = order.paymentType === 'company';
   const paymentLabel = isCompany ? '公司委託' : '個人委託';
   const payeeInfo = isCompany ? order.payeeInfoCompany : order.payeeInfoPersonal;
+  const period =
+    order.periodStart || order.periodEnd
+      ? `${fmtDate(order.periodStart)} – ${fmtDate(order.periodEnd)}`
+      : '';
 
   return (
     <div id="printable-contract" className="printable-contract">
@@ -38,63 +42,47 @@ export default function PrintableContract({
       </p>
 
       <table className="contract-table">
+        <colgroup>
+          <col className="col-label-left" />
+          <col className="col-content-left" />
+          <col className="col-label-mid" />
+          <col className="col-content-right" />
+        </colgroup>
         <tbody>
           <tr>
             <td className="label">日期</td>
-            <td colSpan={2}>
-              填表日期： {fmtDate(order.fillDate)}
-              方案期間： {fmtDate(order.periodStart)} – {fmtDate(order.periodEnd)}
-            </td>
+            <td>{fmtDate(order.fillDate)}</td>
+            <td className="label">方案期間</td>
+            <td>{period}</td>
           </tr>
           <tr>
             <td className="label">委託單位</td>
-            <td colSpan={2}>{order.clientName || ' '}</td>
+            <td>{order.clientName || ' '}</td>
+            <td className="label">專案窗口</td>
+            <td>{order.contactWindow || ' '}</td>
           </tr>
           <tr>
-            <td className="label">聯繫人</td>
-            <td colSpan={2}>
-              姓名：{order.contactName}　　　E-mail：{order.contactEmail}
+            <td className="label">聯繫人姓名</td>
+            <td colSpan={3}>
+              {order.contactName}　　E-mail：{order.contactEmail}
             </td>
           </tr>
           <tr>
             <td className="label">聯繫電話</td>
-            <td colSpan={2}>{order.contactPhone || ' '}</td>
+            <td colSpan={3}>{order.contactPhone || ' '}</td>
           </tr>
           <tr>
-            <td className="label">委刊內容</td>
-            <td className="content-cell">
-              <p className="plan-title-line">☑ {order.planTitle}</p>
-            </td>
-            <td className="payment-cell" rowSpan={2}>
-              <div className="payment-section">
-                <p className="payment-section-label">聯繫窗口</p>
-                <p>{order.contactWindow || ' '}</p>
-              </div>
-              <div className="payment-section">
-                <p>☑ {paymentLabel}</p>
-                {payeeInfo && (
-                  <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
-                )}
-                <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
-              </div>
-              <div className="payment-section signature-section">
-                <p className="signature-cell-label">客戶簽章</p>
-                {signatureDataUrl ? (
-                  <img
-                    src={signatureDataUrl}
-                    alt="客戶簽章"
-                    className="signature-img"
-                  />
-                ) : (
-                  <div className="signature-placeholder" />
-                )}
-                {signedAt && <div className="signed-at">簽署時間：{signedAt}</div>}
-              </div>
+            <td className="label">委託內容</td>
+            <td colSpan={3}>
+              <span className="plan-title-line">☑ {order.planTitle}</span>
             </td>
           </tr>
           <tr>
-            <td className="label">方案細項</td>
-            <td className="content-cell">
+            <td className="section-header" colSpan={3}>方案細項</td>
+            <td className="section-header">付款方式</td>
+          </tr>
+          <tr>
+            <td className="content-cell" colSpan={3} rowSpan={2}>
               <p>
                 每月 {originalFee.toLocaleString()} 元，特惠價 {monthlyFee.toLocaleString()} 元
                 {order.billingNote && (
@@ -122,6 +110,28 @@ export default function PrintableContract({
                   </ol>
                 </>
               )}
+            </td>
+            <td className="payment-cell">
+              <p>☑ {paymentLabel}</p>
+              {payeeInfo && (
+                <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
+              )}
+              <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
+            </td>
+          </tr>
+          <tr>
+            <td className="signature-cell">
+              <div className="signature-cell-label">客戶簽名</div>
+              {signatureDataUrl ? (
+                <img
+                  src={signatureDataUrl}
+                  alt="客戶簽名"
+                  className="signature-img"
+                />
+              ) : (
+                <div className="signature-placeholder" />
+              )}
+              {signedAt && <div className="signed-at">簽署時間：{signedAt}</div>}
             </td>
           </tr>
         </tbody>
