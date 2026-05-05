@@ -64,5 +64,5 @@ export const defaultOrder: OrderData = {
     '本專案委刊單即視為合約，一經委刊者於客戶簽章欄簽名或支付本專案款項費用後本合約立即生效。'
   ],
   payeeInfoPersonal: '兆豐銀行 017\n南京東路分行\n07010000354 鄭仲傑',
-  payeeInfoCompany: ''
+  payeeInfoCompany: '兆豐銀行 017\n南京東路分行\n07009100610\n吸引力科技有限公司'
 };
