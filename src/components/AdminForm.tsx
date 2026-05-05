@@ -162,10 +162,11 @@ export default function AdminForm() {
         </label>
       </div>
 
-      <h2 className="section-title">方案內容（已預填，可調整）</h2>
-      <div className="grid">
-        <label className="span-3">
-          <span>服務名稱</span>
+      <details className="plan-details">
+        <summary>方案內容（已預填，可調整）</summary>
+        <div className="grid">
+          <label className="span-3">
+            <span>服務名稱</span>
           <input
             type="text"
             value={order.planTitle}
@@ -243,7 +244,8 @@ export default function AdminForm() {
             onChange={(e) => update('payeeInfoCompany', e.target.value)}
           />
         </label>
-      </div>
+        </div>
+      </details>
 
       <div className="link-box">
         <label>連結密碼</label>
