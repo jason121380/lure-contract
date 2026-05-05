@@ -11,11 +11,6 @@ interface Props {
 
 type Status = 'idle' | 'rendering' | 'submitting' | 'done' | 'error';
 
-const STATUS_TEXT: Record<Exclude<Status, 'idle' | 'done' | 'error'>, string> = {
-  rendering: '正在產生 PDF…',
-  submitting: '正在傳送至雲端…'
-};
-
 export default function CustomerView({ order }: Props) {
   const padRef = useRef<SignaturePadHandle>(null);
   const [status, setStatus] = useState<Status>('idle');
@@ -106,10 +101,7 @@ export default function CustomerView({ order }: Props) {
         <div className="progress-overlay" role="status" aria-live="polite">
           <div className="progress-card">
             <div className="spinner" />
-            <p className="progress-text">
-              {STATUS_TEXT[status as 'rendering' | 'submitting']}
-            </p>
-            <p className="progress-hint">請勿關閉視窗，整個流程約需 10–30 秒…</p>
+            <p className="progress-text">資料回傳中…</p>
           </div>
         </div>
       )}
