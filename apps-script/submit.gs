@@ -14,7 +14,7 @@
  * 注意：每次修改本檔後，必須建立「新版本部署」前端拿到的 URL 才會更新。
  */
 
-const PDF_FOLDER_ID = '請填入_存放簽署PDF的資料夾ID';
+const PDF_FOLDER_ID = '1hTX-oMo0DdC8CGTs63-FXLsYWqHa1ssc'; // 吸引力合約回傳
 const RESPONSE_SHEET_ID = '請填入_紀錄表的Google_Sheet_ID';
 const RESPONSE_SHEET_NAME = '簽署紀錄';
 
