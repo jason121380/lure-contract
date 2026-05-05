@@ -72,7 +72,7 @@ export default function PrintableContract({
           <tr>
             <td className="label">委託內容</td>
             <td colSpan={3}>
-              <span className="plan-title-line">☑ {order.planTitle}</span>
+              <span className="plan-title-line">{order.planTitle}</span>
             </td>
           </tr>
           <tr>
