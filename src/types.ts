@@ -41,7 +41,7 @@ export const defaultOrder: OrderData = {
   contactAddress: '',
   monthlyFee: 3600,
   paymentType: 'personal',
-  contactWindow: 'clare',
+  contactWindow: '',
 
   planTitle: '廣告代投放',
   originalFee: 6000,
