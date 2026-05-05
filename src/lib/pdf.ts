@@ -47,9 +47,11 @@ export async function generateContractPdf(
   const base64 = (pdf.output('datauristring') as string).split(',')[1] ?? '';
 
   const dt = new Date(signedAtIso);
-  const ymd = `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}`;
+  const m = dt.getMonth() + 1;
+  const d = dt.getDate();
+  const yy = String(dt.getFullYear()).slice(-2);
   const safeName = (clientName || '客戶').replace(/[\\/:*?"<>|]/g, '_');
-  const filename = `委刊單_${safeName}_${ymd}.pdf`;
+  const filename = `${safeName} ${m}/${d}/${yy}.pdf`;
 
   return { blob, base64, filename };
 }
