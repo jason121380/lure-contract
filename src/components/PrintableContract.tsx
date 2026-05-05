@@ -38,10 +38,6 @@ export default function PrintableContract({
       <table className="contract-table">
         <tbody>
           <tr>
-            <td className="label" colSpan={2}>刊登申請</td>
-            <td></td>
-          </tr>
-          <tr>
             <td className="label">日期</td>
             <td colSpan={2}>
               填表日期： {fmtDate(order.fillDate)}
@@ -68,8 +64,7 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="label">委刊內容</td>
-            <td></td>
-            <td>付款方式</td>
+            <td colSpan={2}></td>
           </tr>
           <tr>
             <td className="label">☑ {order.planTitle}</td>
