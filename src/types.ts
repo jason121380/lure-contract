@@ -41,7 +41,7 @@ export const defaultOrder: OrderData = {
   paymentType: 'personal',
   contactWindow: '',
 
-  planTitle: '廣告代投放',
+  planTitle: '一對一行銷陪跑顧問 + 廣告代投放',
   originalFee: 6000,
   billingNote: 'Meta 廣告費用每月依實際投放金額 + 服務費 10%，計算於次月請款',
   planDuration: '3 個月',
