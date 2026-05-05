@@ -32,9 +32,9 @@ export default function PrintableContract({
       <h1 className="contract-title">吸引力整合行銷 專案委刊單</h1>
 
       <p className="contract-intro">
-        請仔細閱讀並填表，確認後簽章或蓋公司大小章，即表示您已閱讀並同意此委刊單所有內容，
-        此委刊登一經製作正、副本完成同時即視為正式合約，
-        (正本本公司留存，副本委託刊登廣告者留存)雙方即需履行合約義務。
+        請仔細閱讀以下委刊單內容，確認無誤後於下方簽名欄完成電子簽署並送出，
+        即表示您已閱讀並同意本委刊單所有內容。
+        本委刊單一經電子簽署完成即視為正式合約，雙方即需履行合約義務。
       </p>
 
       <table className="contract-table">
@@ -62,10 +62,19 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="label">委刊內容</td>
-            <td colSpan={2}></td>
+            <td className="content-cell">
+              <p className="plan-title-line">☑ {order.planTitle}</p>
+            </td>
+            <td className="payment-cell" rowSpan={2}>
+              <p>☑ {paymentLabel}</p>
+              {payeeInfo && (
+                <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
+              )}
+              <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
+            </td>
           </tr>
           <tr>
-            <td className="label">☑ {order.planTitle}</td>
+            <td className="label">方案細項</td>
             <td className="content-cell">
               <p>
                 每月 {originalFee.toLocaleString()} 元，特惠價 {monthlyFee.toLocaleString()} 元
@@ -94,13 +103,6 @@ export default function PrintableContract({
                   </ol>
                 </>
               )}
-            </td>
-            <td className="payment-cell">
-              <p>☑ {paymentLabel}</p>
-              {payeeInfo && (
-                <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
-              )}
-              <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
             </td>
           </tr>
           <tr>

@@ -339,6 +339,10 @@ input, select, textarea, button { font-family: inherit; }
   font-size: 14px;
   margin-top: 8px;
 }
+.plan-title-line {
+  margin: 0;
+  font-weight: 700;
+}
 .bullets,
 .terms {
   margin: 6px 0;
