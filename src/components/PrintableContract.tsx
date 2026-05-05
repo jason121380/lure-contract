@@ -63,9 +63,7 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="label">聯繫人姓名</td>
-            <td colSpan={3}>
-              {order.contactName}　　E-mail：{order.contactEmail}
-            </td>
+            <td colSpan={3}>{order.contactName || ' '}</td>
           </tr>
           <tr>
             <td className="label">聯繫電話</td>
