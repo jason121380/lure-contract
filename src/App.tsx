@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AdminForm from './components/AdminForm';
 import CustomerView from './components/CustomerView';
 import PasswordPrompt from './components/PasswordPrompt';
@@ -6,57 +6,50 @@ import { decryptOrder } from './lib/crypto';
 import { fetchShortLink } from './lib/shortener';
 import type { OrderData } from './types';
 
-type LinkState = 'admin' | 'loading' | 'ready' | 'error';
+type Mode = 'admin' | 'customer' | 'error';
 
 export default function App() {
   const [order, setOrder] = useState<OrderData | null>(null);
-  const [encrypted, setEncrypted] = useState<string | null>(null);
-  const [linkState, setLinkState] = useState<LinkState>('admin');
+  const [mode, setMode] = useState<Mode>('admin');
   const [linkError, setLinkError] = useState('');
+  const blobRef = useRef<Promise<string> | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const e = params.get('e');
     const k = params.get('k');
     if (e) {
-      setEncrypted(e);
-      setLinkState('ready');
+      blobRef.current = Promise.resolve(e);
+      setMode('customer');
       return;
     }
     if (k) {
-      setLinkState('loading');
-      fetchShortLink(k)
-        .then((blob) => {
-          setEncrypted(blob);
-          setLinkState('ready');
-        })
-        .catch((err) => {
-          setLinkError(err instanceof Error ? err.message : '載入失敗');
-          setLinkState('error');
-        });
+      // Show password prompt immediately; fetch blob in the background so
+      // the user can start typing while the round-trip completes.
+      blobRef.current = fetchShortLink(k);
+      blobRef.current.catch((err) => {
+        setLinkError(err instanceof Error ? err.message : '載入失敗');
+        setMode('error');
+      });
+      setMode('customer');
     }
   }, []);
 
   const handleUnlock = async (password: string): Promise<boolean> => {
-    if (!encrypted) return false;
-    const decrypted = await decryptOrder(encrypted, password);
+    if (!blobRef.current) return false;
+    let blob: string;
+    try {
+      blob = await blobRef.current;
+    } catch {
+      return false;
+    }
+    const decrypted = await decryptOrder(blob, password);
     if (!decrypted) return false;
     setOrder(decrypted);
     return true;
   };
 
-  if (linkState === 'loading') {
-    return (
-      <div className="link-loading-wrap">
-        <div className="link-loading-card">
-          <div className="spinner" />
-          <p>載入中…</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (linkState === 'error') {
+  if (mode === 'error') {
     return (
       <div className="link-loading-wrap">
         <div className="link-loading-card">
@@ -70,7 +63,7 @@ export default function App() {
 
   return (
     <div className="app">
-      {encrypted && !order ? (
+      {mode === 'customer' && !order ? (
         <PasswordPrompt onUnlock={handleUnlock} />
       ) : order ? (
         <CustomerView order={order} />

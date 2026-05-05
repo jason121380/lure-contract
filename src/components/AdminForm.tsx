@@ -4,7 +4,6 @@ import { defaultOrder } from '../types';
 import { buildSigningUrl, encryptOrder } from '../lib/crypto';
 import {
   buildShortSigningUrl,
-  fetchShortLink,
   randomShortId,
   storeShortLink
 } from '../lib/shortener';
@@ -87,10 +86,6 @@ export default function AdminForm() {
 
       const id = randomShortId(8);
       await storeShortLink(id, blob);
-
-      // Verify storage round-trips before swapping the link.
-      const got = await fetchShortLink(id);
-      if (got !== blob) throw new Error('儲存後讀回不一致');
 
       setLink(buildShortSigningUrl(id));
       setCopied(false);
