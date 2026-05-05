@@ -15,7 +15,7 @@
  */
 
 const PDF_FOLDER_ID = '1hTX-oMo0DdC8CGTs63-FXLsYWqHa1ssc'; // 吸引力合約回傳
-const RESPONSE_SHEET_ID = '請填入_紀錄表的Google_Sheet_ID';
+const RESPONSE_SHEET_ID = '13LKthJEK1p_J0Rvef7wnFYZZ_mBLtCU9d6sKrWOe-EI';
 const RESPONSE_SHEET_NAME = '簽署紀錄';
 
 function init() {
