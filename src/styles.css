@@ -317,14 +317,18 @@ input, select, textarea, button { font-family: inherit; }
 
 .contract-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
+  border-top: 1px solid #333;
+  border-left: 1px solid #333;
 }
 .contract-table .col-label-left { width: 100px; }
 .contract-table .col-label-mid { width: 84px; }
 .contract-table .col-content-right { width: 220px; }
 .contract-table td {
-  border: 1px solid #333;
+  border-right: 1px solid #333;
+  border-bottom: 1px solid #333;
   padding: 8px 10px;
   vertical-align: top;
   word-break: break-word;

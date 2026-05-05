@@ -38,23 +38,21 @@ export async function generateContractPdf(
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-  // Multi-page if content height exceeds one A4 page.
-  const imgData = canvas.toDataURL('image/png');
-  let heightLeft = imgHeight;
-  let position = 0;
-
-  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
-
-  while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+  // Always fit to a single A4 page: if scaling to page width overflows the
+  // page height, scale to page height instead (image becomes narrower and
+  // gets centered horizontally).
+  const aspect = canvas.height / canvas.width;
+  let renderWidth = pageWidth;
+  let renderHeight = renderWidth * aspect;
+  let renderX = 0;
+  if (renderHeight > pageHeight) {
+    renderHeight = pageHeight;
+    renderWidth = renderHeight / aspect;
+    renderX = (pageWidth - renderWidth) / 2;
   }
+
+  const imgData = canvas.toDataURL('image/png');
+  pdf.addImage(imgData, 'PNG', renderX, 0, renderWidth, renderHeight);
 
   const blob = pdf.output('blob');
   const base64 = (pdf.output('datauristring') as string).split(',')[1] ?? '';
