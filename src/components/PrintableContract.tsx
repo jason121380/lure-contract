@@ -24,7 +24,6 @@ export default function PrintableContract({
   const monthlyFee = order.monthlyFee || 0;
   const originalFee = order.originalFee || 0;
   const isCompany = order.paymentType === 'company';
-  const paymentLabel = isCompany ? '公司委託' : '個人委託';
   const payeeInfo = isCompany ? order.payeeInfoCompany : order.payeeInfoPersonal;
   const period =
     order.periodStart || order.periodEnd
@@ -110,7 +109,6 @@ export default function PrintableContract({
               )}
             </td>
             <td className="payment-cell">
-              <p>☑ {paymentLabel}</p>
               {payeeInfo && (
                 <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
               )}
