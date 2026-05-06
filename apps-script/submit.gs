@@ -117,6 +117,15 @@ function handleSubmit_(data) {
   const pdfUrl = file.getUrl();
   Logger.log('drive saved, pdfUrl=%s', pdfUrl);
 
+  let totalMonthly = 0;
+  if (data.plans && data.plans.length) {
+    for (let i = 0; i < data.plans.length; i++) {
+      totalMonthly += Number(data.plans[i].monthlyFee) || 0;
+    }
+  } else if (data.monthlyFee) {
+    totalMonthly = Number(data.monthlyFee) || 0;
+  }
+
   const ss = SpreadsheetApp.openById(RESPONSE_SHEET_ID);
   const sheet = ensureHeaderRow_(ss);
   sheet.appendRow([
@@ -127,7 +136,7 @@ function handleSubmit_(data) {
     data.contactPhone || '',
     data.periodStart || '',
     data.periodEnd || '',
-    data.monthlyFee || '',
+    totalMonthly || '',
     data.paymentType === 'company' ? '公司委託' : '個人委託',
     data.contactWindow || '',
     pdfUrl,

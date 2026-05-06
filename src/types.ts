@@ -1,5 +1,14 @@
 export type PaymentType = 'personal' | 'company';
 
+export interface Plan {
+  planTitle: string;
+  originalFee: number;
+  monthlyFee: number;
+  planDuration: string;
+  billingNote: string;
+  planBullets: string[];
+}
+
 export interface OrderData {
   fillDate: string;
   periodStart: string;
@@ -8,15 +17,11 @@ export interface OrderData {
   contactName: string;
   contactEmail: string;
   contactPhone: string;
-  monthlyFee: number;
   paymentType: PaymentType;
   contactWindow: string;
 
-  planTitle: string;
-  originalFee: number;
-  billingNote: string;
-  planDuration: string;
-  planBullets: string[];
+  plans: Plan[];
+
   terms: string[];
   payeeInfoPersonal: string;
   payeeInfoCompany: string;
@@ -29,22 +34,12 @@ export interface SubmittedPayload extends OrderData {
   filename: string;
 }
 
-export const defaultOrder: OrderData = {
-  fillDate: '',
-  periodStart: '',
-  periodEnd: '',
-  clientName: '',
-  contactName: '',
-  contactEmail: '',
-  contactPhone: '',
-  monthlyFee: 3600,
-  paymentType: 'personal',
-  contactWindow: '',
-
+export const defaultPlan: Plan = {
   planTitle: '一對一行銷陪跑顧問 + 廣告代投放',
   originalFee: 6000,
-  billingNote: 'Meta 廣告費用每月依實際投放金額 + 服務費 10%，計算於次月請款',
+  monthlyFee: 3600,
   planDuration: '3 個月',
+  billingNote: 'Meta 廣告費用每月依實際投放金額 + 服務費 10%，計算於次月請款',
   planBullets: [
     '一對一專屬顧問群組',
     '設計師社群帳號健檢與定位',
@@ -53,7 +48,22 @@ export const defaultOrder: OrderData = {
     '廣告素材製作',
     '廣告投放數據成效回報',
     '私訊回覆追蹤'
-  ],
+  ]
+};
+
+export const defaultOrder: OrderData = {
+  fillDate: '',
+  periodStart: '',
+  periodEnd: '',
+  clientName: '',
+  contactName: '',
+  contactEmail: '',
+  contactPhone: '',
+  paymentType: 'personal',
+  contactWindow: '',
+
+  plans: [defaultPlan],
+
   terms: [
     '本人同意已付款之款項不得要求退還，廣告/貼文上線刊出後（含贈送刊登期），本人同意不得中途任意取消廣告之刊登及申請退費。',
     '委刊者所刊登的廣告與網站必須符合國家相關法令以及本公司「廣告審核標準」，本公司有權拒絕刊登，如因委刊者因素導致或有違法令規定時，委刊者不得要求退費或折價。',

@@ -21,14 +21,17 @@ export default function PrintableContract({
   signatureDataUrl,
   signedAt
 }: Props) {
-  const monthlyFee = order.monthlyFee || 0;
-  const originalFee = order.originalFee || 0;
   const isCompany = order.paymentType === 'company';
   const payeeInfo = isCompany ? order.payeeInfoCompany : order.payeeInfoPersonal;
   const period =
     order.periodStart || order.periodEnd
       ? `${fmtDate(order.periodStart)} – ${fmtDate(order.periodEnd)}`
       : '';
+  const totalMonthlyFee = order.plans.reduce(
+    (sum, p) => sum + (Number(p.monthlyFee) || 0),
+    0
+  );
+  const multiplePlans = order.plans.length > 1;
 
   return (
     <div id="printable-contract" className="printable-contract">
@@ -71,7 +74,11 @@ export default function PrintableContract({
           <tr>
             <td className="label">委託內容</td>
             <td colSpan={3}>
-              <span className="plan-title-line">{order.planTitle}</span>
+              {order.plans.map((p, i) => (
+                <div key={i} className="plan-title-line">
+                  {p.planTitle}
+                </div>
+              ))}
             </td>
           </tr>
           <tr>
@@ -80,23 +87,33 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="content-cell" colSpan={3} rowSpan={2}>
-              <p>
-                每月 {originalFee.toLocaleString()} 元，特惠價 {monthlyFee.toLocaleString()} 元
-                {order.billingNote && (
-                  <>
-                    <br />
-                    {order.billingNote}
-                  </>
-                )}
-              </p>
-              {order.planDuration && <p>方案期間：{order.planDuration}</p>}
-              {order.planBullets.length > 0 && (
-                <ul className="bullets">
-                  {order.planBullets.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-              )}
+              {order.plans.map((p, i) => (
+                <div
+                  key={i}
+                  className={`plan-detail-block${i > 0 ? ' plan-detail-block--sep' : ''}`}
+                >
+                  {multiplePlans && (
+                    <p className="plan-detail-name">{p.planTitle}</p>
+                  )}
+                  <p>
+                    每月 {(p.originalFee || 0).toLocaleString()} 元，特惠價 {(p.monthlyFee || 0).toLocaleString()} 元
+                    {p.billingNote && (
+                      <>
+                        <br />
+                        {p.billingNote}
+                      </>
+                    )}
+                  </p>
+                  {p.planDuration && <p>方案期間：{p.planDuration}</p>}
+                  {p.planBullets.length > 0 && (
+                    <ul className="bullets">
+                      {p.planBullets.map((item, j) => (
+                        <li key={j}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
               {order.terms.length > 0 && (
                 <>
                   <p className="terms-title">其他約定條款事項</p>
@@ -112,7 +129,7 @@ export default function PrintableContract({
               {payeeInfo && (
                 <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
               )}
-              <p className="amount">$ {monthlyFee.toLocaleString()} 元整 / 月</p>
+              <p className="amount">$ {totalMonthlyFee.toLocaleString()} 元整 / 月</p>
             </td>
           </tr>
           <tr>
