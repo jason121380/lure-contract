@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import type { OrderData, PaymentType } from '../types';
-import { defaultOrder } from '../types';
+import type { OrderData, PaymentType, Plan } from '../types';
+import { defaultOrder, defaultPlan } from '../types';
 import { encryptOrder } from '../lib/crypto';
 import {
   buildShortSigningUrl,
@@ -48,6 +48,24 @@ export default function AdminForm() {
 
   const update = <K extends keyof OrderData>(key: K, value: OrderData[K]) => {
     setOrder((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updatePlan = <K extends keyof Plan>(index: number, key: K, value: Plan[K]) => {
+    setOrder((prev) => ({
+      ...prev,
+      plans: prev.plans.map((p, i) => (i === index ? { ...p, [key]: value } : p))
+    }));
+  };
+
+  const addPlan = () => {
+    setOrder((prev) => ({ ...prev, plans: [...prev.plans, { ...defaultPlan }] }));
+  };
+
+  const removePlan = (index: number) => {
+    setOrder((prev) => ({
+      ...prev,
+      plans: prev.plans.length > 1 ? prev.plans.filter((_, i) => i !== index) : prev.plans
+    }));
   };
 
   useEffect(() => {
@@ -175,86 +193,114 @@ export default function AdminForm() {
 
       <details className="plan-details">
         <summary>方案內容</summary>
-        <div className="grid">
-          <label className="span-3">
-            <span>服務名稱</span>
-          <input
-            type="text"
-            value={order.planTitle}
-            onChange={(e) => update('planTitle', e.target.value)}
-          />
-        </label>
-        <label>
-          <span>每月原價（元）</span>
-          <input
-            type="number"
-            min={0}
-            value={order.originalFee}
-            onChange={(e) => update('originalFee', Number(e.target.value) || 0)}
-          />
-        </label>
-        <label>
-          <span>每月特惠價（元）</span>
-          <input
-            type="number"
-            min={0}
-            value={order.monthlyFee}
-            onChange={(e) => update('monthlyFee', Number(e.target.value) || 0)}
-          />
-        </label>
-        <label>
-          <span>方案期間描述</span>
-          <input
-            type="text"
-            value={order.planDuration}
-            onChange={(e) => update('planDuration', e.target.value)}
-            placeholder="例：3 個月"
-          />
-        </label>
+        <div className="plan-details-body">
+          {order.plans.map((plan, index) => (
+            <div key={index} className="plan-card">
+              <div className="plan-card-header">
+                <span className="plan-card-title">方案 {index + 1}</span>
+                {order.plans.length > 1 && (
+                  <button
+                    type="button"
+                    className="plan-remove-btn"
+                    onClick={() => removePlan(index)}
+                  >
+                    移除
+                  </button>
+                )}
+              </div>
+              <div className="grid">
+                <label className="span-3">
+                  <span>服務名稱</span>
+                  <input
+                    type="text"
+                    value={plan.planTitle}
+                    onChange={(e) => updatePlan(index, 'planTitle', e.target.value)}
+                  />
+                </label>
+                <label>
+                  <span>每月原價（元）</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={plan.originalFee}
+                    onChange={(e) =>
+                      updatePlan(index, 'originalFee', Number(e.target.value) || 0)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>每月特惠價（元）</span>
+                  <input
+                    type="number"
+                    min={0}
+                    value={plan.monthlyFee}
+                    onChange={(e) =>
+                      updatePlan(index, 'monthlyFee', Number(e.target.value) || 0)
+                    }
+                  />
+                </label>
+                <label>
+                  <span>方案期間描述</span>
+                  <input
+                    type="text"
+                    value={plan.planDuration}
+                    onChange={(e) => updatePlan(index, 'planDuration', e.target.value)}
+                    placeholder="例：3 個月"
+                  />
+                </label>
+                <label className="span-3">
+                  <span>計費補充說明</span>
+                  <input
+                    type="text"
+                    value={plan.billingNote}
+                    onChange={(e) => updatePlan(index, 'billingNote', e.target.value)}
+                  />
+                </label>
+                <label className="span-3">
+                  <span>服務項目（每行一條）</span>
+                  <textarea
+                    rows={7}
+                    value={listToText(plan.planBullets)}
+                    onChange={(e) =>
+                      updatePlan(index, 'planBullets', textToList(e.target.value))
+                    }
+                  />
+                </label>
+              </div>
+            </div>
+          ))}
 
-        <label className="span-3">
-          <span>計費補充說明</span>
-          <input
-            type="text"
-            value={order.billingNote}
-            onChange={(e) => update('billingNote', e.target.value)}
-          />
-        </label>
+          <button type="button" className="add-plan-btn" onClick={addPlan}>
+            + 新增方案
+          </button>
 
-        <label className="span-3">
-          <span>服務項目（每行一條）</span>
-          <textarea
-            rows={7}
-            value={listToText(order.planBullets)}
-            onChange={(e) => update('planBullets', textToList(e.target.value))}
-          />
-        </label>
+          <div className="grid">
+            <label className="span-3">
+              <span>其他約定條款（每行一條）</span>
+              <textarea
+                rows={8}
+                value={listToText(order.terms)}
+                onChange={(e) => update('terms', textToList(e.target.value))}
+              />
+            </label>
 
-        <label className="span-3">
-          <span>其他約定條款（每行一條）</span>
-          <textarea
-            rows={8}
-            value={listToText(order.terms)}
-            onChange={(e) => update('terms', textToList(e.target.value))}
-          />
-        </label>
-
-        <label className="span-3">
-          <span>個人委託收款資訊（付款類型選「個人委託」時顯示）</span>
-          <textarea
-            rows={3}
-            value={order.payeeInfoPersonal}
-            onChange={(e) => update('payeeInfoPersonal', e.target.value)}
-          />
-        </label>
-        <label className="span-3">
-          <span>公司委託收款資訊（付款類型選「公司委託」時顯示）</span>
-          <textarea
-            rows={3}
-            value={order.payeeInfoCompany}
-            onChange={(e) => update('payeeInfoCompany', e.target.value)}
-          />
-        </label>
+            <label className="span-3">
+              <span>個人委託收款資訊（付款類型選「個人委託」時顯示）</span>
+              <textarea
+                rows={3}
+                value={order.payeeInfoPersonal}
+                onChange={(e) => update('payeeInfoPersonal', e.target.value)}
+              />
+            </label>
+            <label className="span-3">
+              <span>公司委託收款資訊（付款類型選「公司委託」時顯示）</span>
+              <textarea
+                rows={3}
+                value={order.payeeInfoCompany}
+                onChange={(e) => update('payeeInfoCompany', e.target.value)}
+              />
+            </label>
+          </div>
         </div>
       </details>
 

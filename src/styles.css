@@ -64,6 +64,70 @@ input, select, textarea, button { font-family: inherit; }
   border-bottom: 1px solid #e5e7eb;
 }
 .plan-details > .grid { padding: 18px; }
+.plan-details-body { padding: 18px; }
+
+.plan-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fafafa;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.plan-card-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111;
+}
+.plan-remove-btn {
+  border: 1px solid #fca5a5;
+  background: #fff;
+  color: #b91c1c;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.plan-remove-btn:hover {
+  background: #fee2e2;
+}
+
+.add-plan-btn {
+  width: 100%;
+  background: #fff;
+  border: 1px dashed #94a3b8;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #475569;
+  margin-bottom: 18px;
+}
+.add-plan-btn:hover {
+  background: #f8fafc;
+  border-color: #475569;
+  color: #111;
+}
+
+.plan-detail-block {
+  margin-bottom: 4px;
+}
+.plan-detail-block--sep {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #cbd5e1;
+}
+.plan-detail-name {
+  font-weight: 700;
+  margin: 0 0 4px;
+}
 .grid textarea {
   border: 1px solid #cbd5e1;
   background: #fff;
