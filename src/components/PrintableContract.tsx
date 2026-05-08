@@ -27,10 +27,12 @@ export default function PrintableContract({
     order.periodStart || order.periodEnd
       ? `${fmtDate(order.periodStart)} – ${fmtDate(order.periodEnd)}`
       : '';
-  const totalMonthlyFee = order.plans.reduce(
-    (sum, p) => sum + (Number(p.monthlyFee) || 0),
-    0
-  );
+  const monthlyTotal = order.plans
+    .filter((p) => p.billingType === 'monthly')
+    .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const oneTimeTotal = order.plans
+    .filter((p) => p.billingType === 'oneTime')
+    .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
   const multiplePlans = order.plans.length > 1;
 
   return (
@@ -87,33 +89,44 @@ export default function PrintableContract({
           </tr>
           <tr>
             <td className="content-cell" colSpan={3} rowSpan={2}>
-              {order.plans.map((p, i) => (
-                <div
-                  key={i}
-                  className={`plan-detail-block${i > 0 ? ' plan-detail-block--sep' : ''}`}
-                >
-                  {multiplePlans && (
-                    <p className="plan-detail-name">{p.planTitle}</p>
-                  )}
-                  <p>
-                    每月 {(p.originalFee || 0).toLocaleString()} 元，特惠價 {(p.monthlyFee || 0).toLocaleString()} 元
-                    {p.billingNote && (
-                      <>
-                        <br />
-                        {p.billingNote}
-                      </>
+              {order.plans.map((p, i) => {
+                const orig = Number(p.originalFee) || 0;
+                const amt = Number(p.amount) || 0;
+                const showPrice = orig > 0 || amt > 0;
+                return (
+                  <div
+                    key={i}
+                    className={`plan-detail-block${i > 0 ? ' plan-detail-block--sep' : ''}`}
+                  >
+                    {multiplePlans && (
+                      <p className="plan-detail-name">{p.planTitle}</p>
                     )}
-                  </p>
-                  {p.planDuration && <p>方案期間：{p.planDuration}</p>}
-                  {p.planBullets.length > 0 && (
-                    <ul className="bullets">
-                      {p.planBullets.map((item, j) => (
-                        <li key={j}>{item}</li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              ))}
+                    {(showPrice || p.billingNote) && (
+                      <p>
+                        {showPrice && p.billingType === 'oneTime' && (
+                          <>一次性支付 總價 {amt.toLocaleString()} 元</>
+                        )}
+                        {showPrice && p.billingType !== 'oneTime' && (
+                          <>
+                            每月 {orig.toLocaleString()} 元，特惠價{' '}
+                            {amt.toLocaleString()} 元
+                          </>
+                        )}
+                        {showPrice && p.billingNote && <br />}
+                        {p.billingNote}
+                      </p>
+                    )}
+                    {p.planDuration && <p>方案期間：{p.planDuration}</p>}
+                    {p.planBullets.length > 0 && (
+                      <ul className="bullets">
+                        {p.planBullets.map((item, j) => (
+                          <li key={j}>{item}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
               {order.terms.length > 0 && (
                 <>
                   <p className="terms-title">其他約定條款事項</p>
@@ -129,7 +142,16 @@ export default function PrintableContract({
               {payeeInfo && (
                 <p style={{ whiteSpace: 'pre-line' }}>{payeeInfo}</p>
               )}
-              <p className="amount">$ {totalMonthlyFee.toLocaleString()} 元整 / 月</p>
+              {monthlyTotal > 0 && (
+                <p className="amount">
+                  $ {monthlyTotal.toLocaleString()} 元整 / 月
+                </p>
+              )}
+              {oneTimeTotal > 0 && (
+                <p className="amount">
+                  $ {oneTimeTotal.toLocaleString()} 元整（一次性）
+                </p>
+              )}
             </td>
           </tr>
           <tr>

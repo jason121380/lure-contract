@@ -1,9 +1,11 @@
 export type PaymentType = 'personal' | 'company';
+export type BillingType = 'monthly' | 'oneTime';
 
 export interface Plan {
   planTitle: string;
+  billingType: BillingType;
   originalFee: number;
-  monthlyFee: number;
+  amount: number;
   planDuration: string;
   billingNote: string;
   planBullets: string[];
@@ -36,8 +38,9 @@ export interface SubmittedPayload extends OrderData {
 
 export const defaultPlan: Plan = {
   planTitle: '一對一行銷陪跑顧問 + 廣告代投放',
+  billingType: 'monthly',
   originalFee: 6000,
-  monthlyFee: 3600,
+  amount: 3600,
   planDuration: '3 個月',
   billingNote: 'Meta 廣告費用每月依實際投放金額 + 服務費 10%，計算於次月請款',
   planBullets: [
