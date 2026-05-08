@@ -117,13 +117,15 @@ function handleSubmit_(data) {
   const pdfUrl = file.getUrl();
   Logger.log('drive saved, pdfUrl=%s', pdfUrl);
 
-  let totalMonthly = 0;
+  // 把所有方案金額相加（月費 + 一次性合計）寫進「每月金額」欄。
+  let totalAmount = 0;
   if (data.plans && data.plans.length) {
     for (let i = 0; i < data.plans.length; i++) {
-      totalMonthly += Number(data.plans[i].monthlyFee) || 0;
+      const p = data.plans[i];
+      totalAmount += Number(p.amount || p.monthlyFee) || 0;
     }
   } else if (data.monthlyFee) {
-    totalMonthly = Number(data.monthlyFee) || 0;
+    totalAmount = Number(data.monthlyFee) || 0;
   }
 
   const ss = SpreadsheetApp.openById(RESPONSE_SHEET_ID);
@@ -136,7 +138,7 @@ function handleSubmit_(data) {
     data.contactPhone || '',
     data.periodStart || '',
     data.periodEnd || '',
-    totalMonthly || '',
+    totalAmount || '',
     data.paymentType === 'company' ? '公司委託' : '個人委託',
     data.contactWindow || '',
     pdfUrl,
