@@ -151,6 +151,11 @@ input, select, textarea, button { font-family: inherit; }
 }
 .grid label { display: flex; flex-direction: column; font-size: 13px; color: #333; }
 .grid label > span { margin-bottom: 4px; font-weight: 600; }
+.grid label > span .field-hint {
+  font-weight: 400;
+  font-size: 11px;
+  color: #94a3b8;
+}
 .grid label.span-2 { grid-column: span 2; }
 .grid label.span-3 { grid-column: span 3; }
 .grid input,
