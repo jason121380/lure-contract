@@ -27,12 +27,14 @@ export default function PrintableContract({
     order.periodStart || order.periodEnd
       ? `${fmtDate(order.periodStart)} – ${fmtDate(order.periodEnd)}`
       : '';
+  const planAmount = (p: { amount: number; originalFee: number }) =>
+    Number(p.amount) || Number(p.originalFee) || 0;
   const monthlyTotal = order.plans
     .filter((p) => p.billingType === 'monthly')
-    .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    .reduce((sum, p) => sum + planAmount(p), 0);
   const oneTimeTotal = order.plans
     .filter((p) => p.billingType === 'oneTime')
-    .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    .reduce((sum, p) => sum + planAmount(p), 0);
   const multiplePlans = order.plans.length > 1;
 
   return (
@@ -93,6 +95,8 @@ export default function PrintableContract({
                 const orig = Number(p.originalFee) || 0;
                 const amt = Number(p.amount) || 0;
                 const showPrice = orig > 0 || amt > 0;
+                const showCompare = orig > 0 && amt > 0 && orig !== amt;
+                const headlineAmount = amt > 0 ? amt : orig;
                 return (
                   <div
                     key={i}
@@ -104,13 +108,26 @@ export default function PrintableContract({
                     {(showPrice || p.billingNote) && (
                       <p>
                         {showPrice && p.billingType === 'oneTime' && (
-                          <>一次性支付 總價 {amt.toLocaleString()} 元</>
+                          showCompare ? (
+                            <>
+                              原價 {orig.toLocaleString()} 元，一次性特惠價{' '}
+                              {amt.toLocaleString()} 元
+                            </>
+                          ) : (
+                            <>
+                              一次性支付 總價 {headlineAmount.toLocaleString()} 元
+                            </>
+                          )
                         )}
                         {showPrice && p.billingType !== 'oneTime' && (
-                          <>
-                            每月 {orig.toLocaleString()} 元，特惠價{' '}
-                            {amt.toLocaleString()} 元
-                          </>
+                          showCompare ? (
+                            <>
+                              每月 {orig.toLocaleString()} 元，特惠價{' '}
+                              {amt.toLocaleString()} 元
+                            </>
+                          ) : (
+                            <>每月 {headlineAmount.toLocaleString()} 元</>
+                          )
                         )}
                         {showPrice && p.billingNote && <br />}
                         {p.billingNote}

@@ -232,7 +232,10 @@ export default function AdminForm() {
                     </select>
                   </label>
                   <label>
-                    <span>{isMonthly ? '每月原價（元）' : '原價（元）'}</span>
+                    <span>
+                      {isMonthly ? '每月原價（元）' : '原價（元）'}
+                      <small className="field-hint">　0 = 不顯示對照</small>
+                    </span>
                     <input
                       type="number"
                       min={0}
@@ -240,6 +243,7 @@ export default function AdminForm() {
                       onChange={(e) =>
                         updatePlan(index, 'originalFee', Number(e.target.value) || 0)
                       }
+                      placeholder="0 = 不顯示"
                     />
                   </label>
                   <label>
