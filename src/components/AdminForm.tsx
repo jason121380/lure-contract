@@ -232,10 +232,7 @@ export default function AdminForm() {
                     </select>
                   </label>
                   <label>
-                    <span>
-                      {isMonthly ? '每月原價（元）' : '原價（元）'}
-                      <small className="field-hint">　0 = 不顯示對照</small>
-                    </span>
+                    <span>{isMonthly ? '每月原價（元）' : '原價（元）'}</span>
                     <input
                       type="number"
                       min={0}
@@ -257,6 +254,23 @@ export default function AdminForm() {
                       }
                     />
                   </label>
+                  <div className="form-help">
+                    <strong>價格顯示規則</strong>
+                    <ul>
+                      <li>
+                        <b>原價填 0</b>，或與特惠價相同 → 合約只顯示「
+                        {isMonthly ? '每月 12,000 元' : '一次性支付 總價 12,000 元'}」一個價格。
+                      </li>
+                      <li>
+                        <b>原價與特惠價不同</b> → 合約顯示對照「
+                        {isMonthly
+                          ? '每月 18,000 元，特惠價 12,000 元'
+                          : '原價 18,000 元，一次性特惠價 12,000 元'}
+                        」。
+                      </li>
+                      <li>原價與特惠價兩者都為 0 → 整行價格不出現。</li>
+                    </ul>
+                  </div>
                   <label className="span-3">
                     <span>方案期間描述</span>
                     <input
